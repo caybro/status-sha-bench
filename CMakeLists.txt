@@ -18,7 +18,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-    tst_sha1bench.cpp git-sha1/git-sha1.c
+    tst_sha1bench.cpp
+    git-sha1/git-sha1.c
+    nayuki/nayuki-sha1-fast.c nayuki/bench-nayuki.c
 )
 
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
