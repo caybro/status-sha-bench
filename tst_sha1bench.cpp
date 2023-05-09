@@ -187,9 +187,10 @@ void Sha1Bench::bench_QCryptographicHash_sha1_static()
 
 void Sha1Bench::bench_tomcrypt_sha1()
 {
+  hash_state md;
+  unsigned char tmp[SHA_DIGEST_LENGTH];
+
   QBENCHMARK {
-    hash_state md;
-    unsigned char tmp[SHA_DIGEST_LENGTH];
     sha1_init(&md);
     sha1_process(&md, (const unsigned char*)s_benchmarkString.constData(), s_benchmarkString.length());
     sha1_done(&md, tmp);
@@ -198,17 +199,19 @@ void Sha1Bench::bench_tomcrypt_sha1()
 
 void Sha1Bench::bench_openssl_sha1()
 {
+  unsigned char hash[SHA_DIGEST_LENGTH];
+
   QBENCHMARK {
-    unsigned char hash[SHA_DIGEST_LENGTH];
     SHA1((const unsigned char*)s_benchmarkString.constData(), s_benchmarkString.length(), hash);
   }
 }
 
 void Sha1Bench::bench_git_sha1()
 {
+  blk_SHA_CTX sha1;
+  unsigned char hashout[SHA_DIGEST_LENGTH];
+
   QBENCHMARK {
-    blk_SHA_CTX sha1;
-    unsigned char hashout[SHA_DIGEST_LENGTH];
     blk_SHA1_Init(&sha1);
     blk_SHA1_Update(&sha1, s_benchmarkString.constData(), s_benchmarkString.length());
     blk_SHA1_Final(hashout, &sha1);
