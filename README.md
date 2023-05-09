@@ -15,4 +15,6 @@ openssl: 0.000048 msecs per iteration (total: 51, iterations: 1048576)
 
 git-sha1: 0.000094 msecs per iteration (total: 99, iterations: 1048576)
 
+nayuki: 0.000073 msecs per iteration (total: 77, iterations: 1048576)
+
 to be expanded...
