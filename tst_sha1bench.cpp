@@ -10,6 +10,8 @@
 
 #include "nayuki/bench-nayuki.h"
 
+#include "sha-intrinsics/sha1.h"
+
 #include <memory>
 
 namespace {
@@ -29,6 +31,7 @@ char *bin2hex(const unsigned char *bin, size_t len) {
 }
 
 static const auto s_benchmarkString(QByteArrayLiteral("The quick brown fox jumps over the lazy dog"));
+//static const auto s_benchmarkString(QByteArray(""));
 }
 
 class Sha1Bench : public QObject
@@ -53,6 +56,7 @@ class Sha1Bench : public QObject
   void bench_openssl_sha1();
   void bench_git_sha1();
   void bench_nayuki_sha1();
+  void bench_intrinsics_sha1();
 
  private:
   std::unique_ptr<QCryptographicHash> m_qt_sha1;
@@ -119,6 +123,14 @@ void Sha1Bench::test_strings()
   qInfo() << "NAYUKI:" << input << expectedResult << actualResultNayuki.get();
   QEXPECT_FAIL("", "Nayuki doesn't pass validation!!!", Continue);
   QCOMPARE(actualResultNayuki.get(), expectedResult);
+
+  // test intrinsics
+  uint32_t state[5] = {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0};
+  sha1_process_x86(state, (const unsigned char*)input.constBegin(), input.length());
+  QScopedPointer<char, QScopedPointerPodDeleter> actualResultIntr(bin2hex((const unsigned char*)state, sizeof(state))); // autodelete the malloc'd memory
+  qInfo() << "INTR:" << input << expectedResult << actualResultIntr.get();
+  QEXPECT_FAIL("", "INTR doesn't pass validation!!!", Continue);
+  QCOMPARE(actualResultIntr.get(), expectedResult);
 }
 
 void Sha1Bench::bench_QCryptographicHash_sha1()
@@ -126,7 +138,7 @@ void Sha1Bench::bench_QCryptographicHash_sha1()
   QBENCHMARK {
     m_qt_sha1->reset();
     m_qt_sha1->addData(s_benchmarkString);
-    const auto result =  m_qt_sha1->result();
+    const auto result = m_qt_sha1->result();
   }
 }
 
@@ -156,8 +168,6 @@ void Sha1Bench::bench_openssl_sha1()
   }
 }
 
-QTEST_APPLESS_MAIN(Sha1Bench)
-
 void Sha1Bench::bench_git_sha1()
 {
   QBENCHMARK {
@@ -176,5 +186,22 @@ void Sha1Bench::bench_nayuki_sha1()
     sha1_hash((const uint8_t *)s_benchmarkString.constData(), s_benchmarkString.length(), hash);
   }
 }
+
+void Sha1Bench::bench_intrinsics_sha1()
+{
+//  /* empty message with padding */
+//  uint8_t message[64];
+//  memset(message, 0x00, sizeof(message));
+//  message[0] = 0x80;
+
+  QBENCHMARK {
+    /* initial state */
+    uint32_t state[5] = {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0};
+    sha1_process_x86(state, (const uint8_t *)s_benchmarkString.constData(), s_benchmarkString.length());
+    //sha1_process_x86(state, message, sizeof(message));
+  }
+}
+
+QTEST_APPLESS_MAIN(Sha1Bench)
 
 #include "tst_sha1bench.moc"

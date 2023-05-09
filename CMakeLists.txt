@@ -23,6 +23,12 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     nayuki/nayuki-sha1-fast.c nayuki/bench-nayuki.c
 )
 
+if (NOT APPLE)
+    target_sources(${PROJECT_NAME} PRIVATE sha-intrinsics/sha1-x86.c)
+else()
+    target_sources(${PROJECT_NAME} PRIVATE sha-intrinsics/sha1-arm.c)
+endif()
+
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 
 pkg_check_modules(LIBTOMCRYPT REQUIRED IMPORTED_TARGET libtomcrypt)
