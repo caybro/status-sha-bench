@@ -4,6 +4,8 @@
 
 #include <tomcrypt.h>
 
+#include <openssl/sha.h>
+
 #include <memory>
 
 namespace {
@@ -44,6 +46,7 @@ class Sha1Bench : public QObject
   void bench_QCryptographicHash_sha1();
   void bench_QCryptographicHash_sha1_static();
   void bench_tomcrypt_sha1();
+  void bench_openssl_sha1();
 
  private:
   std::unique_ptr<QCryptographicHash> m_qt_sha1;
@@ -90,12 +93,18 @@ void Sha1Bench::test_strings()
 
   // test libtomcrypt SHA1
   hash_state md;
-  unsigned char tmp[20];
+  unsigned char tmp[SHA_DIGEST_LENGTH];
   sha1_init(&md);
-  sha1_process(&md, (unsigned char*)input.constData(), input.length());
+  sha1_process(&md, (const unsigned char*)input.constData(), input.length());
   sha1_done(&md, tmp);
   QScopedPointer<char, QScopedPointerPodDeleter> actualResult(bin2hex(tmp, sizeof(tmp))); // autodelete the malloc'd memory
   QCOMPARE(actualResult.get(), expectedResult);
+
+  //test openssl SHA1
+  unsigned char hash[SHA_DIGEST_LENGTH];
+  SHA1((const unsigned char*)input.constData(), input.length(), hash);
+  QScopedPointer<char, QScopedPointerPodDeleter> actualResultSSL(bin2hex(hash, sizeof(hash))); // autodelete the malloc'd memory
+  QCOMPARE(actualResultSSL.get(), expectedResult);
 }
 
 void Sha1Bench::bench_QCryptographicHash_sha1()
@@ -118,10 +127,18 @@ void Sha1Bench::bench_tomcrypt_sha1()
 {
   QBENCHMARK {
     hash_state md;
-    unsigned char tmp[20];
+    unsigned char tmp[SHA_DIGEST_LENGTH];
     sha1_init(&md);
     sha1_process(&md, (const unsigned char*)s_benchmarkString.constData(), s_benchmarkString.length());
     sha1_done(&md, tmp);
+  }
+}
+
+void Sha1Bench::bench_openssl_sha1()
+{
+  QBENCHMARK {
+    unsigned char hash[SHA_DIGEST_LENGTH];
+    SHA1((const unsigned char*)s_benchmarkString.constData(), s_benchmarkString.length(), hash);
   }
 }
 

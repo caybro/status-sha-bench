@@ -8,6 +8,7 @@ find_package(PkgConfig REQUIRED)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Test)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
+find_package(OpenSSL REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -25,4 +26,4 @@ add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 pkg_check_modules(LIBTOMCRYPT REQUIRED IMPORTED_TARGET libtomcrypt)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test)
-target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::LIBTOMCRYPT)
+target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::LIBTOMCRYPT OpenSSL::SSL)

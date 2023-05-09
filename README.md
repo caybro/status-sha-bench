@@ -7,6 +7,7 @@ The goal is to compare and benchmark various implementations of the [SHA1]([url]
 
 QCryptographicHash (sha1 dynamic): 0.00011 msecs per iteration (total: 59, iterations: 524288)
 QCryptographicHash (sha1 static): 0.00013 msecs per iteration (total: 71, iterations: 524288)
-libtomcrypt: 0.0000963 msecs per iteration (total: 101, iterations: 1048576)
+libtomcrypt: 0.00010 msecs per iteration (total: 101, iterations: 1048576)
+openssl: 0.000048 msecs per iteration (total: 51, iterations: 1048576)
 
 to be expanded...
