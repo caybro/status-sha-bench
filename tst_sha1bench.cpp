@@ -6,6 +6,8 @@
 
 #include <openssl/sha.h>
 
+#include "git-sha1/git-sha1.h"
+
 #include <memory>
 
 namespace {
@@ -47,6 +49,7 @@ class Sha1Bench : public QObject
   void bench_QCryptographicHash_sha1_static();
   void bench_tomcrypt_sha1();
   void bench_openssl_sha1();
+  void bench_git_sha1();
 
  private:
   std::unique_ptr<QCryptographicHash> m_qt_sha1;
@@ -143,5 +146,16 @@ void Sha1Bench::bench_openssl_sha1()
 }
 
 QTEST_APPLESS_MAIN(Sha1Bench)
+
+void Sha1Bench::bench_git_sha1()
+{
+  QBENCHMARK {
+    blk_SHA_CTX sha1;
+    unsigned char hashout[SHA_DIGEST_LENGTH];
+    blk_SHA1_Init(&sha1);
+    blk_SHA1_Update(&sha1, s_benchmarkString.constData(), s_benchmarkString.length());
+    blk_SHA1_Final(hashout, &sha1);
+  }
+}
 
 #include "tst_sha1bench.moc"

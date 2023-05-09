@@ -13,5 +13,6 @@ libtomcrypt: 0.00010 msecs per iteration (total: 101, iterations: 1048576)
 
 openssl: 0.000048 msecs per iteration (total: 51, iterations: 1048576)
 
+git-sha1: 0.000094 msecs per iteration (total: 99, iterations: 1048576)
 
 to be expanded...
