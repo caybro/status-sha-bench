@@ -111,6 +111,14 @@ void Sha1Bench::test_strings()
   SHA1((const unsigned char*)input.constData(), input.length(), hash);
   QScopedPointer<char, QScopedPointerPodDeleter> actualResultSSL(bin2hex(hash, sizeof(hash))); // autodelete the malloc'd memory
   QCOMPARE(actualResultSSL.get(), expectedResult);
+
+  // test nayuki
+  uint32_t nayuki_hash[STATE_LEN];
+  sha1_hash((const uint8_t *)input.constData(), input.length(), nayuki_hash);
+  QScopedPointer<char, QScopedPointerPodDeleter> actualResultNayuki(bin2hex((const unsigned char*)nayuki_hash, sizeof(nayuki_hash))); // autodelete the malloc'd memory
+  qInfo() << "NAYUKI:" << input << expectedResult << actualResultNayuki.get();
+  QEXPECT_FAIL("", "Nayuki doesn't pass validation!!!", Continue);
+  QCOMPARE(actualResultNayuki.get(), expectedResult);
 }
 
 void Sha1Bench::bench_QCryptographicHash_sha1()

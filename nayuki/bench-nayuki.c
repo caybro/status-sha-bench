@@ -1,14 +1,14 @@
 #include "bench-nayuki.h"
 
+#define LENGTH_SIZE 8  // In bytes
+
 /* Full message hasher */
-void sha1_hash(const uint8_t message[], size_t len, uint32_t hash[static STATE_LEN]) {
+void sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LEN]) {
 	hash[0] = UINT32_C(0x67452301);
 	hash[1] = UINT32_C(0xEFCDAB89);
 	hash[2] = UINT32_C(0x98BADCFE);
 	hash[3] = UINT32_C(0x10325476);
 	hash[4] = UINT32_C(0xC3D2E1F0);
-	
-	#define LENGTH_SIZE 8  // In bytes
 	
 	size_t off;
 	for (off = 0; len - off >= BLOCK_LEN; off += BLOCK_LEN)
