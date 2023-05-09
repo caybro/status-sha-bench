@@ -1,14 +1,18 @@
 #pragma once
 
-#if defined(__GNUC__)
-# include <stdint.h>
-#endif
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
 
 #ifdef  __cplusplus
 extern "C" {
 #endif
 
-void sha1_process_x86(uint32_t state[5], const uint8_t data[], uint32_t length);
+#define LENGTH_SIZE 8  // In bytes
+#define BLOCK_LEN 64  // In bytes
+#define STATE_LEN 5  // In words
+
+void sha1_process_x86(uint32_t state[STATE_LEN], const uint8_t data[], uint32_t length);
 
 #ifdef  __cplusplus
 }

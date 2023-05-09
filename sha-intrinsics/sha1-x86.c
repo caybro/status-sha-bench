@@ -34,7 +34,7 @@ void sha1_process_x86(uint32_t state[5], const uint8_t data[], uint32_t length)
   E0 = _mm_set_epi32(state[4], 0, 0, 0);
   ABCD = _mm_shuffle_epi32(ABCD, 0x1B);
 
-  while (length >= 64)
+  while (length >= BLOCK_LEN)
   {
     /* Save current state  */
     ABCD_SAVE = ABCD;
@@ -200,8 +200,8 @@ void sha1_process_x86(uint32_t state[5], const uint8_t data[], uint32_t length)
     E0 = _mm_sha1nexte_epu32(E0, E0_SAVE);
     ABCD = _mm_add_epi32(ABCD, ABCD_SAVE);
 
-    data += 64;
-    length -= 64;
+    data += BLOCK_LEN;
+    length -= BLOCK_LEN;
   }
 
   /* Save state */

@@ -41,7 +41,7 @@ void sha1_process_arm(uint32_t state[5], const uint8_t data[], uint32_t length)
     ABCD = vld1q_u32(&state[0]);
     E0 = state[4];
 
-    while (length >= 64)
+    while (length >= BLOCK_LEN)
     {
         /* Save state */
         ABCD_SAVED = ABCD;
@@ -198,8 +198,8 @@ void sha1_process_arm(uint32_t state[5], const uint8_t data[], uint32_t length)
         E0 += E0_SAVED;
         ABCD = vaddq_u32(ABCD_SAVED, ABCD);
 
-        data += 64;
-        length -= 64;
+        data += BLOCK_LEN;
+        length -= BLOCK_LEN;
     }
 
     /* Save state */

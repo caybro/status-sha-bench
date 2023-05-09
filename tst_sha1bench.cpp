@@ -30,6 +30,46 @@ char *bin2hex(const unsigned char *bin, size_t len) {
   return out;
 }
 
+QString uint32Array5_to_hex(uint32_t state[5]) {
+  static constexpr auto fillChar = QLatin1Char('0');
+  return QStringLiteral("%1%2%3%4%5")
+      .arg(state[0], 8, 16, fillChar)
+      .arg(state[1], 8, 16, fillChar)
+      .arg(state[2], 8, 16, fillChar)
+      .arg(state[3], 8, 16, fillChar)
+      .arg(state[4], 8, 16, fillChar);
+}
+
+/* Full message intrinsics hasher */
+void intrr_sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LEN]) {
+  hash[0] = UINT32_C(0x67452301);
+  hash[1] = UINT32_C(0xEFCDAB89);
+  hash[2] = UINT32_C(0x98BADCFE);
+  hash[3] = UINT32_C(0x10325476);
+  hash[4] = UINT32_C(0xC3D2E1F0);
+
+  size_t off;
+  for (off = 0; len - off >= BLOCK_LEN; off += BLOCK_LEN)
+    sha1_process_x86(hash, &message[off], sizeof(&message[off]));
+
+  uint8_t block[BLOCK_LEN] = {0};
+  size_t rem = len - off;
+  memcpy(block, &message[off], rem);
+
+  block[rem] = 0x80;
+  rem++;
+  if (BLOCK_LEN - rem < LENGTH_SIZE) {
+    sha1_process_x86(hash, block, sizeof(block));
+    memset(block, 0, sizeof(block));
+  }
+
+  block[BLOCK_LEN - 1] = (uint8_t)((len & 0x1FU) << 3);
+  len >>= 5;
+  for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
+    block[BLOCK_LEN - 1 - i] = (uint8_t)(len & 0xFFU);
+  sha1_process_x86(hash, block, sizeof(block));
+}
+
 static const auto s_benchmarkString(QByteArrayLiteral("The quick brown fox jumps over the lazy dog"));
 //static const auto s_benchmarkString(QByteArray(""));
 }
@@ -119,18 +159,14 @@ void Sha1Bench::test_strings()
   // test nayuki
   uint32_t nayuki_hash[STATE_LEN];
   sha1_hash((const uint8_t *)input.constData(), input.length(), nayuki_hash);
-  QScopedPointer<char, QScopedPointerPodDeleter> actualResultNayuki(bin2hex((const unsigned char*)nayuki_hash, sizeof(nayuki_hash))); // autodelete the malloc'd memory
-  qInfo() << "NAYUKI:" << input << expectedResult << actualResultNayuki.get();
-  QEXPECT_FAIL("", "Nayuki doesn't pass validation!!!", Continue);
-  QCOMPARE(actualResultNayuki.get(), expectedResult);
+  QString actualResultNayuki = uint32Array5_to_hex(nayuki_hash);
+  QCOMPARE(actualResultNayuki, expectedResult);
 
   // test intrinsics
-  uint32_t state[5] = {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0};
-  sha1_process_x86(state, (const unsigned char*)input.constBegin(), input.length());
-  QScopedPointer<char, QScopedPointerPodDeleter> actualResultIntr(bin2hex((const unsigned char*)state, sizeof(state))); // autodelete the malloc'd memory
-  qInfo() << "INTR:" << input << expectedResult << actualResultIntr.get();
-  QEXPECT_FAIL("", "INTR doesn't pass validation!!!", Continue);
-  QCOMPARE(actualResultIntr.get(), expectedResult);
+  uint32_t intr_hash[STATE_LEN];
+  intrr_sha1_hash((const uint8_t *)input.constData(), input.length(), intr_hash);
+  QString actualResultIntr = uint32Array5_to_hex(intr_hash);
+  QCOMPARE(actualResultIntr, expectedResult);
 }
 
 void Sha1Bench::bench_QCryptographicHash_sha1()
@@ -189,16 +225,9 @@ void Sha1Bench::bench_nayuki_sha1()
 
 void Sha1Bench::bench_intrinsics_sha1()
 {
-//  /* empty message with padding */
-//  uint8_t message[64];
-//  memset(message, 0x00, sizeof(message));
-//  message[0] = 0x80;
-
   QBENCHMARK {
-    /* initial state */
-    uint32_t state[5] = {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0};
-    sha1_process_x86(state, (const uint8_t *)s_benchmarkString.constData(), s_benchmarkString.length());
-    //sha1_process_x86(state, message, sizeof(message));
+    uint32_t intr_hash[STATE_LEN];
+    intrr_sha1_hash((const uint8_t *)s_benchmarkString.constData(), s_benchmarkString.length(), intr_hash);
   }
 }
 

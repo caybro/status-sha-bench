@@ -17,6 +17,4 @@ git-sha1: 0.000094 msecs per iteration (total: 99, iterations: 1048576)
 
 nayuki: 0.000073 msecs per iteration (total: 77, iterations: 1048576)
 
-sha1-intrinsics: 0.0000057 msecs per iteration (total: 92, iterations: 16777216)
-
-to be expanded...
+sha1-intrinsics: 0.000034 msecs per iteration (total: 72, iterations: 2097152)
