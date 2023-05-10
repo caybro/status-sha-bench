@@ -105,6 +105,7 @@ class Sha1Bench : public QObject
 
   void bench_qch_file_sha1();
   void bench_tomcrypt_file_sha1();
+  void bench_nayuki_file_sha1();
   void bench_intr_file_sha1();
 
  private:
@@ -282,6 +283,23 @@ void Sha1Bench::bench_tomcrypt_file_sha1()
     QVERIFY(file.atEnd());
     QScopedPointer<char, QScopedPointerPodDeleter> actualResult(bin2hex(tmp, sizeof(tmp))); // autodelete the malloc'd memory
     QCOMPARE(actualResult.get(), s_someBigFileToBenchmarkHash);
+  }
+}
+
+void Sha1Bench::bench_nayuki_file_sha1()
+{
+  QFile file(s_someBigFileToBenchmark);
+  if (file.open(QIODevice::ReadOnly)) {
+    const auto buffer = file.readAll();
+    uint32_t nayuki_hash[STATE_LEN];
+
+    QBENCHMARK {
+      sha1_hash((const uint8_t *)buffer.constData(), buffer.length(), nayuki_hash);
+    }
+
+    QVERIFY(file.atEnd());
+    QString actualResultNayuki = uint32Array5_to_hex(nayuki_hash);
+    QCOMPARE(actualResultNayuki, s_someBigFileToBenchmarkHash);
   }
 }
 
