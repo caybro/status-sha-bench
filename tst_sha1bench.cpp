@@ -75,6 +75,8 @@ static const auto s_benchmarkString(QByteArrayLiteral("The quick brown fox jumps
 
 static const auto s_someBigFileToBenchmark(QStringLiteral("/home/ltinkl/perf.data"));
 static const auto s_someBigFileToBenchmarkHash(QByteArrayLiteral("1272bf0a1eb675fbd6019069005f8a8c2401f6e6"));
+//static const auto s_someBigFileToBenchmark(QStringLiteral("/home/ltinkl/git/status/status-desktop/Status/data/0x6c8f1ce266e76c27641f040e965c231710777b5e1bbf10debd2f9e3c6bd851a7.db"));
+//static const auto s_someBigFileToBenchmarkHash(QByteArrayLiteral("1ce775ff895d18bcd691147cdc2a89c4122f28f0"));
 }
 
 class Sha1Bench : public QObject
@@ -139,6 +141,10 @@ void Sha1Bench::test_strings_data()
   QTest::newRow("fox") << QByteArrayLiteral("The quick brown fox jumps over the lazy dog") << QByteArrayLiteral("2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
   QTest::newRow("lorem") << QByteArrayLiteral("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam erat volutpat.")  // sth > 64 bytes
                          << QByteArrayLiteral("fcf73dd818a87a17718b408b2834ac2a9eefbc60");
+  QTest::newRow("lorem2") << QByteArrayLiteral("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam erat volutpat. Aliquam erat volutpat. Aliquam erat volutpat. consectetuer adipiscing elit")  // sth > 127 bytes
+                         << QByteArrayLiteral("4852957428281c0986775cbba35908be5d4d38d6");
+  QTest::newRow("lorem3") << QByteArrayLiteral("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam erat volutpat. Aliquam erat volutpat. Aliquam erat volutpat. consectetuer adipiscing elit. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam erat volutpat. Lorem ipsum dolor sit amet")  // sth > 256 bytes
+                          << QByteArrayLiteral("bf993041b31eac0910a2c05b3e358d93fd165e75");
 }
 
 void Sha1Bench::test_strings()
