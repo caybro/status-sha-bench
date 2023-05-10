@@ -30,7 +30,7 @@ char *bin2hex(const unsigned char *bin, size_t len) {
   return out;
 }
 
-QString uint32Array5_to_hex(uint32_t state[5]) {
+QString uint32Array5_to_hex(uint32_t state[STATE_LEN]) {
   static constexpr auto fillChar = QLatin1Char('0');
   return QStringLiteral("%1%2%3%4%5")
       .arg(state[0], 8, 16, fillChar)
@@ -50,7 +50,7 @@ void intrr_sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LE
 
   size_t off;
   for (off = 0; len - off >= BLOCK_LEN; off += BLOCK_LEN)
-    sha1_process_x86(hash, &message[off], sizeof(&message[off]));
+    sha1_process_x86(hash, &message[off], BLOCK_LEN);
 
   uint8_t block[BLOCK_LEN] = {0};
   size_t rem = len - off;
@@ -130,6 +130,8 @@ void Sha1Bench::test_strings_data()
   QTest::newRow("empty") << QByteArrayLiteral("") << QByteArrayLiteral("da39a3ee5e6b4b0d3255bfef95601890afd80709");
   QTest::newRow("password") << QByteArrayLiteral("password") << QByteArrayLiteral("5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
   QTest::newRow("fox") << QByteArrayLiteral("The quick brown fox jumps over the lazy dog") << QByteArrayLiteral("2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+  QTest::newRow("lorem") << QByteArrayLiteral("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam erat volutpat.")  // sth > 64 bytes
+                         << QByteArrayLiteral("fcf73dd818a87a17718b408b2834ac2a9eefbc60");
 }
 
 void Sha1Bench::test_strings()
