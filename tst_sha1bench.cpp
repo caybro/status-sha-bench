@@ -72,6 +72,9 @@ void intrr_sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LE
 
 static const auto s_benchmarkString(QByteArrayLiteral("The quick brown fox jumps over the lazy dog"));
 //static const auto s_benchmarkString(QByteArray(""));
+
+static const auto s_someBigFileToBenchmark(QStringLiteral("/home/ltinkl/perf.data"));
+static const auto s_someBigFileToBenchmarkHash(QByteArrayLiteral("1272bf0a1eb675fbd6019069005f8a8c2401f6e6"));
 }
 
 class Sha1Bench : public QObject
@@ -97,6 +100,10 @@ class Sha1Bench : public QObject
   void bench_git_sha1();
   void bench_nayuki_sha1();
   void bench_intrinsics_sha1();
+
+  void bench_qch_file_sha1();
+  void bench_tomcrypt_file_sha1();
+  void bench_intr_file_sha1();
 
  private:
   std::unique_ptr<QCryptographicHash> m_qt_sha1;
@@ -233,6 +240,59 @@ void Sha1Bench::bench_intrinsics_sha1()
   QBENCHMARK {
     uint32_t intr_hash[STATE_LEN];
     intrr_sha1_hash((const uint8_t *)s_benchmarkString.constData(), s_benchmarkString.length(), intr_hash);
+  }
+}
+
+void Sha1Bench::bench_qch_file_sha1()
+{
+  QFile file(s_someBigFileToBenchmark);
+  if (file.open(QIODevice::ReadOnly)) {
+    QByteArray result;
+    QBENCHMARK {
+      m_qt_sha1->addData(&file);
+      result = m_qt_sha1->result();
+    }
+
+    QVERIFY(file.atEnd());
+    QCOMPARE(result.toHex(), s_someBigFileToBenchmarkHash);
+  }
+}
+
+void Sha1Bench::bench_tomcrypt_file_sha1()
+{
+  QFile file(s_someBigFileToBenchmark);
+  if (file.open(QIODevice::ReadOnly)) {
+    const auto buffer = file.readAll();
+
+    unsigned char tmp[SHA_DIGEST_LENGTH];
+
+    QBENCHMARK {
+      hash_state md;
+      sha1_init(&md);
+      sha1_process(&md, (const unsigned char*)buffer.constData(), buffer.length());
+      sha1_done(&md, tmp);
+    }
+
+    QVERIFY(file.atEnd());
+    QScopedPointer<char, QScopedPointerPodDeleter> actualResult(bin2hex(tmp, sizeof(tmp))); // autodelete the malloc'd memory
+    QCOMPARE(actualResult.get(), s_someBigFileToBenchmarkHash);
+  }
+}
+
+void Sha1Bench::bench_intr_file_sha1()
+{
+  QFile file(s_someBigFileToBenchmark);
+  if (file.open(QIODevice::ReadOnly)) {
+    const auto buffer = file.readAll();
+    uint32_t intr_hash[STATE_LEN];
+
+    QBENCHMARK {
+      intrr_sha1_hash((const uint8_t *)buffer.constData(), buffer.length(), intr_hash);
+    }
+
+    QVERIFY(file.atEnd());
+    QString actualResultIntr = uint32Array5_to_hex(intr_hash);
+    QCOMPARE(actualResultIntr, s_someBigFileToBenchmarkHash);
   }
 }
 

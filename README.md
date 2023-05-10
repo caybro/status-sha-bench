@@ -18,3 +18,9 @@ git-sha1: 0.000092 msecs per iteration (total: 97, iterations: 1048576)
 nayuki: 0.000073 msecs per iteration (total: 77, iterations: 1048576)
 
 sha1-intrinsics: 0.000034 msecs per iteration (total: 72, iterations: 2097152)
+
+QCryptographicHash(big file): 116 msecs per iteration (total: 116, iterations: 1)
+
+libtomcrypt(big file): 129 msecs per iteration (total: 129, iterations: 1)
+
+sha1-intrinsics(big file): 43 msecs per iteration (total: 87, iterations: 2)
