@@ -28,3 +28,6 @@ libtomcrypt(big file): 181 msecs per iteration (total: 129, iterations: 1)
 nayuki (big file): 93 msecs per iteration (total: 99, iterations: 1)
 
 sha1-intrinsics(big file): 42 msecs per iteration (total: 87, iterations: 2)
+
+### CSV bench results
+https://github.com/caybro/status-sha-bench/blob/0f79ce6274edf94d1d1626a93a5983b50cc0b473/bench_results.csv?plain=1#L1-L11
