@@ -73,7 +73,7 @@ void intrr_sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LE
 static const auto s_benchmarkString(QByteArrayLiteral("The quick brown fox jumps over the lazy dog"));
 //static const auto s_benchmarkString(QByteArray(""));
 
-static const auto s_someBigFileToBenchmark(QStringLiteral("/home/ltinkl/perf.data"));
+static const auto s_someBigFileToBenchmark(SOURCE_DIR + QStringLiteral("/data/perf.data"));
 static const auto s_someBigFileToBenchmarkHash(QByteArrayLiteral("1272bf0a1eb675fbd6019069005f8a8c2401f6e6"));
 //static const auto s_someBigFileToBenchmark(QStringLiteral("/home/ltinkl/git/status/status-desktop/Status/data/0x6c8f1ce266e76c27641f040e965c231710777b5e1bbf10debd2f9e3c6bd851a7.db"));
 //static const auto s_someBigFileToBenchmarkHash(QByteArrayLiteral("1ce775ff895d18bcd691147cdc2a89c4122f28f0"));
