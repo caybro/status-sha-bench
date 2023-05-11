@@ -83,24 +83,184 @@ static int sha1_compress(hash_state *md, unsigned char *buf)
 #endif
 {
 #if SHA1_TARGET_ARM
-    // FIXME
+    // -> BEGIN arm intrinsics block
+    uint32x4_t ABCD, ABCD_SAVED;
+    uint32x4_t TMP0, TMP1;
+    uint32x4_t MSG0, MSG1, MSG2, MSG3;
+    uint32_t   E0, E0_SAVED, E1;
+
+    /* Load state */
+    ABCD = vld1q_u32(&md->sha1.state[0]);
+    E0 = md->sha1.state[4];
+
+    /* Save state */
+    ABCD_SAVED = ABCD;
+    E0_SAVED = E0;
+
+    /* Load message */
+    MSG0 = vld1q_u32((const uint32_t*)(buf));
+    MSG1 = vld1q_u32((const uint32_t*)(buf + 16));
+    MSG2 = vld1q_u32((const uint32_t*)(buf + 32));
+    MSG3 = vld1q_u32((const uint32_t*)(buf + 48));
+
+    /* Reverse for little endian */
+    MSG0 = vreinterpretq_u32_u8(vrev32q_u8(vreinterpretq_u8_u32(MSG0)));
+    MSG1 = vreinterpretq_u32_u8(vrev32q_u8(vreinterpretq_u8_u32(MSG1)));
+    MSG2 = vreinterpretq_u32_u8(vrev32q_u8(vreinterpretq_u8_u32(MSG2)));
+    MSG3 = vreinterpretq_u32_u8(vrev32q_u8(vreinterpretq_u8_u32(MSG3)));
+
+    TMP0 = vaddq_u32(MSG0, vdupq_n_u32(0x5A827999));
+    TMP1 = vaddq_u32(MSG1, vdupq_n_u32(0x5A827999));
+
+    /* Rounds 0-3 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1cq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG2, vdupq_n_u32(0x5A827999));
+    MSG0 = vsha1su0q_u32(MSG0, MSG1, MSG2);
+
+    /* Rounds 4-7 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1cq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG3, vdupq_n_u32(0x5A827999));
+    MSG0 = vsha1su1q_u32(MSG0, MSG3);
+    MSG1 = vsha1su0q_u32(MSG1, MSG2, MSG3);
+
+    /* Rounds 8-11 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1cq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG0, vdupq_n_u32(0x5A827999));
+    MSG1 = vsha1su1q_u32(MSG1, MSG0);
+    MSG2 = vsha1su0q_u32(MSG2, MSG3, MSG0);
+
+    /* Rounds 12-15 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1cq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG1, vdupq_n_u32(0x6ED9EBA1));
+    MSG2 = vsha1su1q_u32(MSG2, MSG1);
+    MSG3 = vsha1su0q_u32(MSG3, MSG0, MSG1);
+
+    /* Rounds 16-19 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1cq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG2, vdupq_n_u32(0x6ED9EBA1));
+    MSG3 = vsha1su1q_u32(MSG3, MSG2);
+    MSG0 = vsha1su0q_u32(MSG0, MSG1, MSG2);
+
+    /* Rounds 20-23 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG3, vdupq_n_u32(0x6ED9EBA1));
+    MSG0 = vsha1su1q_u32(MSG0, MSG3);
+    MSG1 = vsha1su0q_u32(MSG1, MSG2, MSG3);
+
+    /* Rounds 24-27 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG0, vdupq_n_u32(0x6ED9EBA1));
+    MSG1 = vsha1su1q_u32(MSG1, MSG0);
+    MSG2 = vsha1su0q_u32(MSG2, MSG3, MSG0);
+
+    /* Rounds 28-31 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG1, vdupq_n_u32(0x6ED9EBA1));
+    MSG2 = vsha1su1q_u32(MSG2, MSG1);
+    MSG3 = vsha1su0q_u32(MSG3, MSG0, MSG1);
+
+    /* Rounds 32-35 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG2, vdupq_n_u32(0x8F1BBCDC));
+    MSG3 = vsha1su1q_u32(MSG3, MSG2);
+    MSG0 = vsha1su0q_u32(MSG0, MSG1, MSG2);
+
+    /* Rounds 36-39 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG3, vdupq_n_u32(0x8F1BBCDC));
+    MSG0 = vsha1su1q_u32(MSG0, MSG3);
+    MSG1 = vsha1su0q_u32(MSG1, MSG2, MSG3);
+
+    /* Rounds 40-43 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1mq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG0, vdupq_n_u32(0x8F1BBCDC));
+    MSG1 = vsha1su1q_u32(MSG1, MSG0);
+    MSG2 = vsha1su0q_u32(MSG2, MSG3, MSG0);
+
+    /* Rounds 44-47 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1mq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG1, vdupq_n_u32(0x8F1BBCDC));
+    MSG2 = vsha1su1q_u32(MSG2, MSG1);
+    MSG3 = vsha1su0q_u32(MSG3, MSG0, MSG1);
+
+    /* Rounds 48-51 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1mq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG2, vdupq_n_u32(0x8F1BBCDC));
+    MSG3 = vsha1su1q_u32(MSG3, MSG2);
+    MSG0 = vsha1su0q_u32(MSG0, MSG1, MSG2);
+
+    /* Rounds 52-55 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1mq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG3, vdupq_n_u32(0xCA62C1D6));
+    MSG0 = vsha1su1q_u32(MSG0, MSG3);
+    MSG1 = vsha1su0q_u32(MSG1, MSG2, MSG3);
+
+    /* Rounds 56-59 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1mq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG0, vdupq_n_u32(0xCA62C1D6));
+    MSG1 = vsha1su1q_u32(MSG1, MSG0);
+    MSG2 = vsha1su0q_u32(MSG2, MSG3, MSG0);
+
+    /* Rounds 60-63 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG1, vdupq_n_u32(0xCA62C1D6));
+    MSG2 = vsha1su1q_u32(MSG2, MSG1);
+    MSG3 = vsha1su0q_u32(MSG3, MSG0, MSG1);
+
+    /* Rounds 64-67 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E0, TMP0);
+    TMP0 = vaddq_u32(MSG2, vdupq_n_u32(0xCA62C1D6));
+    MSG3 = vsha1su1q_u32(MSG3, MSG2);
+    MSG0 = vsha1su0q_u32(MSG0, MSG1, MSG2);
+
+    /* Rounds 68-71 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E1, TMP1);
+    TMP1 = vaddq_u32(MSG3, vdupq_n_u32(0xCA62C1D6));
+    MSG0 = vsha1su1q_u32(MSG0, MSG3);
+
+    /* Rounds 72-75 */
+    E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E0, TMP0);
+
+    /* Rounds 76-79 */
+    E0 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
+    ABCD = vsha1pq_u32(ABCD, E1, TMP1);
+
+    /* Combine state */
+    E0 += E0_SAVED;
+    ABCD = vaddq_u32(ABCD_SAVED, ABCD);
+
+    /* Save state */
+    vst1q_u32(&md->sha1.state[0], ABCD);
+    md->sha1.state[4] = E0;
+    // -> END arm intrinsics block
 #elif SHA1_TARGET_X86
-    uint32_t state[STATE_LEN];
-    state[0] = md->sha1.state[0];
-    state[1] = md->sha1.state[1];
-    state[2] = md->sha1.state[2];
-    state[3] = md->sha1.state[3];
-    state[4] = md->sha1.state[4];
-
-    size_t length = sizeof(buf);
-
+    // -> BEGIN x86_64 intrinsics block
     __m128i ABCD, ABCD_SAVE, E0, E0_SAVE, E1;
     __m128i MSG0, MSG1, MSG2, MSG3;
     const __m128i MASK = _mm_set_epi64x(0x0001020304050607ULL, 0x08090a0b0c0d0e0fULL);
 
     /* Load initial values */
-    ABCD = _mm_loadu_si128((const __m128i*) state);
-    E0 = _mm_set_epi32(state[4], 0, 0, 0);
+    ABCD = _mm_loadu_si128((const __m128i*) md->sha1.state);
+    E0 = _mm_set_epi32(md->sha1.state[4], 0, 0, 0);
     ABCD = _mm_shuffle_epi32(ABCD, 0x1B);
 
     /* Save current state  */
@@ -269,16 +429,12 @@ static int sha1_compress(hash_state *md, unsigned char *buf)
 
     /* Save state */
     ABCD = _mm_shuffle_epi32(ABCD, 0x1B);
-    _mm_storeu_si128((__m128i*) state, ABCD);
-    state[4] = _mm_extract_epi32(E0, 3);
-
-    md->sha1.state[0] = state[0];
-    md->sha1.state[1] = state[1];
-    md->sha1.state[2] = state[2];
-    md->sha1.state[3] = state[3];
-    md->sha1.state[4] = state[4];
-
+    _mm_storeu_si128((__m128i*) md->sha1.state, ABCD);
+    md->sha1.state[4] = _mm_extract_epi32(E0, 3);
+    // -> END x86_64 intrinsics block
 #else
+// -> BEGIN generic, non intrinsics block
+
 #define ROTL32(x, n)  (((0U + (x)) << (n)) | ((x) >> (32 - (n))))  // Assumes that x is uint32_t and 0 < n < 32
 
 #define LOADSCHEDULE(i)  \
@@ -405,6 +561,7 @@ static int sha1_compress(hash_state *md, unsigned char *buf)
 #undef ROUND2
 #undef ROUND3
 #undef ROUNDTAIL
+// -> END generic, non intrinsics block
 #endif
 
     return CRYPT_OK;
