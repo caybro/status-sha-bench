@@ -5,9 +5,10 @@ The goal is to compare and benchmark various implementations of the [SHA1](https
 
 ### Machine 1: Linux, AMD Ryzen 7 6800HS, 16 GB RAM
 
-![image](https://github.com/caybro/status-sha-bench/assets/5377645/4418f41d-63b5-45ed-aa5a-ba4d51f4d790)
+![image](https://github.com/caybro/status-sha-bench/assets/5377645/02b53a89-d817-4cc3-906d-560d223f4c45)
 
-![image](https://github.com/caybro/status-sha-bench/assets/5377645/d1a6a8b2-6a21-4a58-906f-0bfe0bf473f0)
+![image](https://github.com/caybro/status-sha-bench/assets/5377645/d1aaf9b3-2be7-401c-97aa-7d86041c85a8)
+
 
 ### CSV bench results
-https://github.com/caybro/status-sha-bench/blob/0f79ce6274edf94d1d1626a93a5983b50cc0b473/bench_results.csv?plain=1#L1-L11
+https://github.com/caybro/status-sha-bench/blob/b7cdcbf820cea75655cc110e2b41fa17cda4d38d/bench_results.csv?plain=1#L1-L15
