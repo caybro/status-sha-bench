@@ -83,6 +83,10 @@ static int sha1_compress(hash_state *md, unsigned char *buf)
 #endif
 {
 #if SHA1_TARGET_ARM
+    /* sha1-arm.c - ARMv8 SHA extensions using C intrinsics       */
+    /*   Written and placed in public domain by Jeffrey Walton    */
+    /*   Based on code from ARM, and by Johannes Schneiders, Skip */
+    /*   Hovsmith and Barry O'Rourke for the mbedTLS project.     */
     // -> BEGIN arm intrinsics block
     uint32x4_t ABCD, ABCD_SAVED;
     uint32x4_t TMP0, TMP1;
@@ -253,6 +257,10 @@ static int sha1_compress(hash_state *md, unsigned char *buf)
     md->sha1.state[4] = E0;
     // -> END arm intrinsics block
 #elif SHA1_TARGET_X86
+    /* sha1-x86.c - Intel SHA extensions using C intrinsics    */
+    /*   Written and place in public domain by Jeffrey Walton  */
+    /*   Based on code from Intel, and by Sean Gulley for      */
+    /*   the miTLS project.                                    */
     // -> BEGIN x86_64 intrinsics block
     __m128i ABCD, ABCD_SAVE, E0, E0_SAVE, E1;
     __m128i MSG0, MSG1, MSG2, MSG3;
@@ -434,6 +442,12 @@ static int sha1_compress(hash_state *md, unsigned char *buf)
     // -> END x86_64 intrinsics block
 #else
 // -> BEGIN generic, non intrinsics block
+ /*
+ * SHA-1 hash in C
+ *
+ * Copyright (c) 2023 Project Nayuki. (MIT License)
+ * https://www.nayuki.io/page/fast-sha1-hash-implementation-in-x86-assembly
+ */
 
 #define ROTL32(x, n)  (((0U + (x)) << (n)) | ((x) >> (32 - (n))))  // Assumes that x is uint32_t and 0 < n < 32
 
