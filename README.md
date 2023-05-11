@@ -1,7 +1,7 @@
 # status-sha-bench
 Simple test and benchmark for various SHA1 implementations
 
-The goal is to compare and benchmark various implementations of the [SHA1]([url](https://en.wikipedia.org/wiki/SHA-1)) hash algorithm
+The goal is to compare and benchmark various implementations of the [SHA1](https://en.wikipedia.org/wiki/SHA-1) hash algorithm
 
 ### Machine 1: Linux, AMD Ryzen 7 6800HS, 16 GB RAM
 
