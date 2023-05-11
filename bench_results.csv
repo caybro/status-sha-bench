@@ -1,11 +1,15 @@
 "bench_QCryptographicHash_sha1","","WalltimeMilliseconds",0.0001144409179688,60,524288
 "bench_QCryptographicHash_sha1_static","","WalltimeMilliseconds",0.0001316070556641,69,524288
 "bench_tomcrypt_sha1","","WalltimeMilliseconds",0.0001354217529297,71,524288
+"bench_tomcrypt_sha1_new","","WalltimeMilliseconds",4.720687866211e-05,99,2097152
 "bench_openssl_sha1","","WalltimeMilliseconds",4.52995300293e-05,95,2097152
 "bench_git_sha1","","WalltimeMilliseconds",9.441375732422e-05,99,1048576
 "bench_nayuki_sha1","","WalltimeMilliseconds",7.152557373047e-05,75,1048576
 "bench_intrinsics_sha1","","WalltimeMilliseconds",3.433227539062e-05,72,2097152
+
 "bench_qch_file_sha1","","WalltimeMilliseconds",114,114,1
 "bench_tomcrypt_file_sha1","","WalltimeMilliseconds",179,179,1
+"bench_tomcrypt_file_sha1_new","","WalltimeMilliseconds",43.5,85,2
+"bench_openssl_file_sha1","","WalltimeMilliseconds",39,77,2
 "bench_nayuki_file_sha1","","WalltimeMilliseconds",93,93,1
 "bench_intr_file_sha1","","WalltimeMilliseconds",43,86,2

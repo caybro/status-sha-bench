@@ -31,7 +31,7 @@ else()
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "./go-sqlcipher-libtomcrypt")
-target_compile_definitions(${PROJECT_NAME} PUBLIC SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(${PROJECT_NAME} PUBLIC SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" LTC_NO_ASM)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL)
 
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
