@@ -73,7 +73,7 @@ void intrr_sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LE
 static const auto s_benchmarkString(QByteArrayLiteral("The quick brown fox jumps over the lazy dog"));
 //static const auto s_benchmarkString(QByteArray(""));
 
-static const auto s_someBigFileToBenchmark(SOURCE_DIR + QStringLiteral("/data/perf.data"));
+static const auto s_someBigFileToBenchmark(SOURCE_DIR + QByteArrayLiteral("/data/perf.data"));
 static const auto s_someBigFileToBenchmarkHash(QByteArrayLiteral("1272bf0a1eb675fbd6019069005f8a8c2401f6e6"));
 //static const auto s_someBigFileToBenchmark(QStringLiteral("/home/ltinkl/git/status/status-desktop/Status/data/0x6c8f1ce266e76c27641f040e965c231710777b5e1bbf10debd2f9e3c6bd851a7.db"));
 //static const auto s_someBigFileToBenchmarkHash(QByteArrayLiteral("1ce775ff895d18bcd691147cdc2a89c4122f28f0"));
@@ -105,6 +105,7 @@ class Sha1Bench : public QObject
 
   void bench_qch_file_sha1();
   void bench_tomcrypt_file_sha1();
+  void bench_openssl_file_sha1();
   void bench_nayuki_file_sha1();
   void bench_intr_file_sha1();
 
@@ -283,6 +284,22 @@ void Sha1Bench::bench_tomcrypt_file_sha1()
     QVERIFY(file.atEnd());
     QScopedPointer<char, QScopedPointerPodDeleter> actualResult(bin2hex(tmp, sizeof(tmp))); // autodelete the malloc'd memory
     QCOMPARE(actualResult.get(), s_someBigFileToBenchmarkHash);
+  }
+}
+
+void Sha1Bench::bench_openssl_file_sha1()
+{
+  QFile file(s_someBigFileToBenchmark);
+  if (file.open(QIODevice::ReadOnly)) {
+    const auto buffer = file.readAll();
+    unsigned char hash[SHA_DIGEST_LENGTH];
+
+    QBENCHMARK {
+      SHA1((const unsigned char*)buffer.constData(), buffer.length(), hash);
+    }
+
+    QScopedPointer<char, QScopedPointerPodDeleter> actualResultSSL(bin2hex(hash, sizeof(hash))); // autodelete the malloc'd memory
+    QCOMPARE(actualResultSSL.get(), s_someBigFileToBenchmarkHash);
   }
 }
 
