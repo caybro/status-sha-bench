@@ -2,7 +2,7 @@
 
 #include <QCryptographicHash>
 
-#include <tomcrypt.h>
+#include "go-sqlcipher-libtomcrypt/tomcrypt.h"
 
 #include <openssl/sha.h>
 

@@ -21,6 +21,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     tst_sha1bench.cpp
     git-sha1/git-sha1.c
     nayuki/nayuki-sha1-fast.c nayuki/bench-nayuki.c
+    go-sqlcipher-libtomcrypt/sha1.c go-sqlcipher-libtomcrypt/zeromem.c go-sqlcipher-libtomcrypt/crypt_argchk.c go-sqlcipher-libtomcrypt/burn_stack.c
 )
 
 if (NOT APPLE)
@@ -29,8 +30,7 @@ else()
     target_sources(${PROJECT_NAME} PRIVATE sha-intrinsics/sha1-arm.c)
 endif()
 
+target_include_directories(${PROJECT_NAME} PUBLIC "./go-sqlcipher-libtomcrypt")
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL)
+
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
-
-pkg_check_modules(LIBTOMCRYPT REQUIRED IMPORTED_TARGET libtomcrypt)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test PkgConfig::LIBTOMCRYPT OpenSSL::SSL)
