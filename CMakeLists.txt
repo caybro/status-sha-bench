@@ -27,7 +27,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 if (NOT APPLE)
     target_sources(${PROJECT_NAME} PRIVATE sha-intrinsics/sha1-x86.c)
 else()
-    target_sources(${PROJECT_NAME} PRIVATE sha-intrinsics/sha1-arm.c)
+    target_sources(${PROJECT_NAME} PRIVATE sha-intrinsics/sha1-arm8.c)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "./go-sqlcipher-libtomcrypt")

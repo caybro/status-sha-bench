@@ -50,7 +50,7 @@ void intrr_sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LE
 
   size_t off;
   for (off = 0; len - off >= BLOCK_LEN; off += BLOCK_LEN)
-    sha1_process_x86(hash, &message[off], BLOCK_LEN);
+    intrinsics_sha1_process(hash, &message[off], BLOCK_LEN);
 
   uint8_t block[BLOCK_LEN] = {0};
   size_t rem = len - off;
@@ -59,7 +59,7 @@ void intrr_sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LE
   block[rem] = 0x80;
   rem++;
   if (BLOCK_LEN - rem < LENGTH_SIZE) {
-    sha1_process_x86(hash, block, sizeof(block));
+    intrinsics_sha1_process(hash, block, sizeof(block));
     memset(block, 0, sizeof(block));
   }
 
@@ -67,7 +67,7 @@ void intrr_sha1_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LE
   len >>= 5;
   for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
     block[BLOCK_LEN - 1 - i] = (uint8_t)(len & 0xFFU);
-  sha1_process_x86(hash, block, sizeof(block));
+  intrinsics_sha1_process(hash, block, sizeof(block));
 }
 
 static const auto s_benchmarkString(QByteArrayLiteral("The quick brown fox jumps over the lazy dog"));
