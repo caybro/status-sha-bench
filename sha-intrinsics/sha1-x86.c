@@ -23,7 +23,7 @@ typedef UINT8 uint8_t;
 
 /* Process multiple blocks. The caller is responsible for setting the initial */
 /*  state, and the caller is responsible for padding the final block.        */
-void sha1_process_x86(uint32_t state[5], const uint8_t data[], uint32_t length)
+void intrinsics_sha1_process(uint32_t state[5], const uint8_t data[], uint32_t length)
 {
   __m128i ABCD, ABCD_SAVE, E0, E0_SAVE, E1;
   __m128i MSG0, MSG1, MSG2, MSG3;
