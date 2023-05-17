@@ -1,7 +1,7 @@
 # status-sha-bench
-Simple test and benchmark for various SHA1 implementations
+Simple test and benchmark for various SHA1 and AES implementations
 
-The goal is to compare and benchmark various implementations of the [SHA1](https://en.wikipedia.org/wiki/SHA-1) hash algorithm
+The goal is to compare and benchmark various implementations of the [SHA1](https://en.wikipedia.org/wiki/SHA-1) hash algorithm and the [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) cipher
 
 Frameworks/APIs tested:
 1. Qt 5.15 / [QCryptoGraphicHash](https://doc.qt.io/qt-5/qcryptographichash.html); plain C/C++
@@ -12,6 +12,10 @@ Frameworks/APIs tested:
 6. intrinsics - using Intel [SHA](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sha-extensions.html)/ARM [Neon](https://developer.arm.com/Architectures/Neon) extensions; C/ASM, highly optimized
 
 7. and finally, **libtomcrypt_new** which replaces the C-based `sha1_compress` subroutine with optimized versions from `intrinsics` (SHA/Neon) plus a fallback from `nayuki` 
+
+For AES:
+1. [libtomcrypt](https://github.com/libtom/libtomcrypt); plain C (some ASM but disabled); as used currently in https://github.com/status-im/go-sqlcipher
+2. [OpenSSL](https://www.openssl.org/); C/ASM/intrinsics
 
 ### Machine 1: Linux, AMD Ryzen 7 6800HS, 16 GB RAM
 
