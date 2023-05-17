@@ -100,7 +100,7 @@ void AesBench::cleanupTestCase()
 void AesBench::test_strings_data()
 {
   QTest::addColumn<QByteArray>("testKey");
-  QTest::addColumn<QByteArray>("pt"); // plain text
+  QTest::addColumn<QByteArray>("pt"); // plain text (always the same in fact)
   QTest::addColumn<QByteArray>("ct"); // encrypted text
 
   QTest::newRow("AES-128") <<
@@ -125,14 +125,31 @@ void AesBench::test_strings()
   QFETCH(QByteArray, pt);
   QFETCH(QByteArray, ct);
 
-  // test libtomcrypt AES (aka rijndael)
-  unsigned char tmp[2][16]; // temp results
-  symmetric_key key;
-  zeromem(&key, sizeof(key));
-  QCOMPARE(rijndael_setup((const unsigned char *)testKey.constData(), testKey.length(), 0, &key), CRYPT_OK);
-  rijndael_ecb_encrypt((const unsigned char *)pt.constData(), tmp[0], &key);
-  rijndael_ecb_decrypt(tmp[0], tmp[1], &key);
-  QCOMPARE(XMEMCMP(tmp[0], ct.constData(), 16) || XMEMCMP(tmp[1], pt.constData(), 16), 0);
+  {
+    // test libtomcrypt AES (aka rijndael)
+    unsigned char tmp[2][16]; // temp results
+    symmetric_key key;
+    zeromem(&key, sizeof(key));
+    QCOMPARE(rijndael_setup((const unsigned char *)testKey.constData(), testKey.length(), 0, &key), CRYPT_OK);
+    QCOMPARE(rijndael_ecb_encrypt((const unsigned char *)pt.constData(), tmp[0], &key), CRYPT_OK);
+    QCOMPARE(rijndael_ecb_decrypt(tmp[0], tmp[1], &key), CRYPT_OK);
+    QCOMPARE(XMEMCMP(tmp[0], (unsigned char *)ct.constData(), 16), 0);
+    QCOMPARE(XMEMCMP(tmp[1], (unsigned char *)pt.constData(), 16), 0);
+  }
+
+  {
+    // test OpenSSL AES
+    AES_KEY key;
+    QCOMPARE(AES_set_encrypt_key((const unsigned char *)testKey.constData(), testKey.length() * 8, &key), 0);
+    unsigned char encResult[AES_BLOCK_SIZE];
+    AES_ecb_encrypt((const unsigned char *)pt.constData(), encResult, &key, AES_ENCRYPT);
+    QCOMPARE(XMEMCMP(encResult, ct.constData(), AES_BLOCK_SIZE), 0);
+
+    QCOMPARE(AES_set_decrypt_key((const unsigned char *)testKey.constData(), testKey.length() * 8, &key), 0);
+    unsigned char decResult[AES_BLOCK_SIZE];
+    AES_ecb_encrypt((const unsigned char *)ct.constData(), decResult, &key, AES_DECRYPT);
+    QCOMPARE(XMEMCMP(decResult, pt.constData(), AES_BLOCK_SIZE), 0);
+  }
 }
 
 QTEST_APPLESS_MAIN(AesBench)
