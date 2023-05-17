@@ -17,6 +17,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# SHA1
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     tst_sha1bench.cpp
     git-sha1/git-sha1.c
@@ -30,8 +31,17 @@ else()
     target_sources(${PROJECT_NAME} PRIVATE sha-intrinsics/sha1-arm8.c)
 endif()
 
+# AES
+add_executable(StatusAesBench WIN32 MACOSX_BUNDLE
+    tst_aesbench.cpp
+    go-sqlcipher-libtomcrypt/aes.c go-sqlcipher-libtomcrypt/zeromem.c go-sqlcipher-libtomcrypt/crypt_argchk.c go-sqlcipher-libtomcrypt/burn_stack.c
+)
+
 target_include_directories(${PROJECT_NAME} PUBLIC "./go-sqlcipher-libtomcrypt")
 target_compile_definitions(${PROJECT_NAME} PUBLIC SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" LTC_NO_ASM)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL)
+target_link_libraries(StatusAesBench PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL)
 
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+add_test(NAME StatusAesBench COMMAND StatusAesBench)
