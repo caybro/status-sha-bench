@@ -4,6 +4,8 @@
 
 #include <openssl/aes.h>
 #include <botan/aes.h>
+#include "tiny-AES-c/aes.hpp"
+#include "mbedtls/aes.h"
 
 namespace {
 char *bin2hex(const unsigned char *bin, size_t len) {
@@ -46,7 +48,7 @@ static constexpr unsigned char aes_pt_16[] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x5
 static constexpr unsigned char aes_ct_16[] = { 0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30,
                                               0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a };
 
-// AES-256
+// AES-192
 static constexpr unsigned char aes_key_24[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                                                0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
                                                0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17 };
@@ -54,7 +56,7 @@ static constexpr unsigned char aes_key_24[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x
 static constexpr unsigned char aes_ct_24[] = { 0xdd, 0xa9, 0x7c, 0xa4, 0x86, 0x4c, 0xdf, 0xe0,
                                               0x6e, 0xaf, 0x70, 0xa0, 0xec, 0x0d, 0x71, 0x91 };
 
-// AES-512
+// AES-256
 static constexpr unsigned char aes_key_32[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                                                0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
                                                0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -83,14 +85,18 @@ class AesBench : public QObject
   void bench_tomcrypt_aes128_decrypt_string();
   void bench_openssl_aes128_decrypt_string();
   void bench_botan_aes128_decrypt_string();
+  void bench_mbedtls_aes128_decrypt_string();
 
   void bench_tomcrypt_aes192_decrypt_string();
   void bench_openssl_aes192_decrypt_string();
   void bench_botan_aes192_decrypt_string();
+  void bench_mbedtls_aes192_decrypt_string();
 
   void bench_tomcrypt_aes256_decrypt_string();
   void bench_openssl_aes256_decrypt_string();
   void bench_botan_aes256_decrypt_string();
+  void bench_tiny_aes256_decrypt_string();
+  void bench_mbedtls_aes256_decrypt_string();
 };
 
 AesBench::AesBench(QObject * parent)
@@ -163,6 +169,20 @@ void AesBench::test_strings()
     AES_ecb_encrypt((const unsigned char *)ct.constData(), decResult, &key, AES_DECRYPT);
     QCOMPARE(XMEMCMP(decResult, pt.constData(), AES_BLOCK_SIZE), 0);
   }
+
+  {
+    // test mbedTLS AES
+    mbedtls_aes_context ctx;
+    mbedtls_aes_init(&ctx);
+    mbedtls_aes_setkey_enc(&ctx, (const unsigned char *)testKey.constData(), testKey.length()*8);
+    unsigned char encResult[AES_BLOCK_SIZE];
+    mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_ENCRYPT, (const unsigned char *)pt.constData(), encResult);
+    QCOMPARE(XMEMCMP(encResult, (const unsigned char *)ct.constData(), AES_BLOCK_SIZE), 0);
+    mbedtls_aes_setkey_dec(&ctx, (const unsigned char *)testKey.constData(), testKey.length()*8);
+    unsigned char decResult[AES_BLOCK_SIZE];
+    mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_DECRYPT, encResult, decResult);
+    QCOMPARE(XMEMCMP(decResult, (const unsigned char *)pt.constData(), AES_BLOCK_SIZE), 0);
+  }
 }
 
 void AesBench::bench_tomcrypt_aes128_decrypt_string()
@@ -216,6 +236,40 @@ void AesBench::bench_botan_aes128_decrypt_string()
     QCOMPARE(XMEMCMP(decResult, aes_pt_16, cipher.block_size()), 0);
 }
 
+void AesBench::bench_mbedtls_aes128_decrypt_string()
+{
+    mbedtls_aes_context ctx;
+    mbedtls_aes_init(&ctx);
+    mbedtls_aes_setkey_enc(&ctx, aes_key_16, sizeof(aes_key_16)*8);
+    unsigned char encResult[AES_BLOCK_SIZE];
+    mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_ENCRYPT, aes_pt_16, encResult);
+    QCOMPARE(XMEMCMP(encResult, aes_ct_16, AES_BLOCK_SIZE), 0);
+    mbedtls_aes_setkey_dec(&ctx, aes_key_16, sizeof(aes_key_16)*8);
+    unsigned char decResult[AES_BLOCK_SIZE];
+
+    QBENCHMARK {
+      mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_DECRYPT, encResult, decResult);
+    }
+
+    QCOMPARE(XMEMCMP(decResult, aes_pt_16, AES_BLOCK_SIZE), 0);
+}
+
+void AesBench::bench_tiny_aes256_decrypt_string()
+{
+    AES_ctx ctx;
+    AES_init_ctx(&ctx, aes_key_32);
+    uint8_t encResult[AES_BLOCKLEN];
+    memcpy(encResult, aes_pt_16, sizeof(aes_pt_16));
+    AES_ECB_encrypt(&ctx, encResult);
+    QCOMPARE(XMEMCMP(encResult, aes_ct_32, AES_BLOCKLEN), 0);
+
+    uint8_t decResult[AES_BLOCKLEN];
+    memcpy(decResult, encResult, sizeof(encResult));
+    QBENCHMARK {
+      AES_ECB_decrypt(&ctx, decResult);
+    }
+}
+
 void AesBench::bench_tomcrypt_aes192_decrypt_string()
 {
   unsigned char tmp[2][AES_BLOCK_SIZE]; // temp results
@@ -267,6 +321,24 @@ void AesBench::bench_botan_aes192_decrypt_string()
   QCOMPARE(XMEMCMP(decResult, aes_pt_16, cipher.block_size()), 0);
 }
 
+void AesBench::bench_mbedtls_aes192_decrypt_string()
+{
+  mbedtls_aes_context ctx;
+  mbedtls_aes_init(&ctx);
+  mbedtls_aes_setkey_enc(&ctx, aes_key_24, sizeof(aes_key_24)*8);
+  unsigned char encResult[AES_BLOCK_SIZE];
+  mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_ENCRYPT, aes_pt_16, encResult);
+  QCOMPARE(XMEMCMP(encResult, aes_ct_24, AES_BLOCK_SIZE), 0);
+  mbedtls_aes_setkey_dec(&ctx, aes_key_24, sizeof(aes_key_24)*8);
+  unsigned char decResult[AES_BLOCK_SIZE];
+
+  QBENCHMARK {
+    mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_DECRYPT, encResult, decResult);
+  }
+
+  QCOMPARE(XMEMCMP(decResult, aes_pt_16, AES_BLOCK_SIZE), 0);
+}
+
 void AesBench::bench_tomcrypt_aes256_decrypt_string()
 {
   unsigned char tmp[2][AES_BLOCK_SIZE]; // temp results
@@ -316,6 +388,24 @@ void AesBench::bench_botan_aes256_decrypt_string()
   }
 
   QCOMPARE(XMEMCMP(decResult, aes_pt_16, cipher.block_size()), 0);
+}
+
+void AesBench::bench_mbedtls_aes256_decrypt_string()
+{
+  mbedtls_aes_context ctx;
+  mbedtls_aes_init(&ctx);
+  mbedtls_aes_setkey_enc(&ctx, aes_key_32, sizeof(aes_key_32)*8);
+  unsigned char encResult[AES_BLOCK_SIZE];
+  mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_ENCRYPT, aes_pt_16, encResult);
+  QCOMPARE(XMEMCMP(encResult, aes_ct_32, AES_BLOCK_SIZE), 0);
+  mbedtls_aes_setkey_dec(&ctx, aes_key_32, sizeof(aes_key_32)*8);
+  unsigned char decResult[AES_BLOCK_SIZE];
+
+  QBENCHMARK {
+    mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_DECRYPT, encResult, decResult);
+  }
+
+  QCOMPARE(XMEMCMP(decResult, aes_pt_16, AES_BLOCK_SIZE), 0);
 }
 
 QTEST_APPLESS_MAIN(AesBench)

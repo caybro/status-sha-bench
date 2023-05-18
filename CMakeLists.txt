@@ -36,6 +36,8 @@ endif()
 add_executable(StatusAesBench WIN32 MACOSX_BUNDLE
     tst_aesbench.cpp
     go-sqlcipher-libtomcrypt/aes.c go-sqlcipher-libtomcrypt/zeromem.c go-sqlcipher-libtomcrypt/crypt_argchk.c go-sqlcipher-libtomcrypt/burn_stack.c
+    tiny-AES-c/aes.c
+    mbedtls/aes.c mbedtls/aesni.c mbedtls/aesce.c
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" LTC_NO_ASM)
