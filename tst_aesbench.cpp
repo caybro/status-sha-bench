@@ -81,10 +81,10 @@ class AesBench : public QObject
 
   void bench_tomcrypt_aes128_decrypt_string();
   void bench_openssl_aes128_decrypt_string();
+  void bench_tomcrypt_aes192_decrypt_string();
+  void bench_openssl_aes192_decrypt_string();
   void bench_tomcrypt_aes256_decrypt_string();
   void bench_openssl_aes256_decrypt_string();
-  void bench_tomcrypt_aes512_decrypt_string();
-  void bench_openssl_aes512_decrypt_string();
 };
 
 AesBench::AesBench(QObject * parent)
@@ -115,12 +115,12 @@ void AesBench::test_strings_data()
       QByteArray::fromRawData(reinterpret_cast<const char*>(aes_pt_16), sizeof(aes_pt_16)) <<
       QByteArray::fromRawData(reinterpret_cast<const char*>(aes_ct_16), sizeof(aes_ct_16));
 
-  QTest::newRow("AES-256") <<
+  QTest::newRow("AES-192") <<
       QByteArray::fromRawData(reinterpret_cast<const char*>(aes_key_24), sizeof(aes_key_24)) <<
       QByteArray::fromRawData(reinterpret_cast<const char*>(aes_pt_16), sizeof(aes_pt_16)) <<
       QByteArray::fromRawData(reinterpret_cast<const char*>(aes_ct_24), sizeof(aes_ct_24));
 
-  QTest::newRow("AES-512") <<
+  QTest::newRow("AES-256") <<
       QByteArray::fromRawData(reinterpret_cast<const char*>(aes_key_32), sizeof(aes_key_32)) <<
       QByteArray::fromRawData(reinterpret_cast<const char*>(aes_pt_16), sizeof(aes_pt_16)) <<
       QByteArray::fromRawData(reinterpret_cast<const char*>(aes_ct_32), sizeof(aes_ct_32));
@@ -193,7 +193,7 @@ void AesBench::bench_openssl_aes128_decrypt_string()
   QCOMPARE(XMEMCMP(decResult, aes_pt_16, AES_BLOCK_SIZE), 0);
 }
 
-void AesBench::bench_tomcrypt_aes256_decrypt_string()
+void AesBench::bench_tomcrypt_aes192_decrypt_string()
 {
   unsigned char tmp[2][AES_BLOCK_SIZE]; // temp results
   symmetric_key key;
@@ -209,7 +209,7 @@ void AesBench::bench_tomcrypt_aes256_decrypt_string()
   QCOMPARE(XMEMCMP(tmp[1], aes_pt_16, AES_BLOCK_SIZE), 0);
 }
 
-void AesBench::bench_openssl_aes256_decrypt_string()
+void AesBench::bench_openssl_aes192_decrypt_string()
 {
   AES_KEY key;
   QCOMPARE(AES_set_encrypt_key(aes_key_24, sizeof(aes_key_24) * 8, &key), 0);
@@ -227,7 +227,7 @@ void AesBench::bench_openssl_aes256_decrypt_string()
   QCOMPARE(XMEMCMP(decResult, aes_pt_16, AES_BLOCK_SIZE), 0);
 }
 
-void AesBench::bench_tomcrypt_aes512_decrypt_string()
+void AesBench::bench_tomcrypt_aes256_decrypt_string()
 {
   unsigned char tmp[2][AES_BLOCK_SIZE]; // temp results
   symmetric_key key;
@@ -243,7 +243,7 @@ void AesBench::bench_tomcrypt_aes512_decrypt_string()
   QCOMPARE(XMEMCMP(tmp[1], aes_pt_16, AES_BLOCK_SIZE), 0);
 }
 
-void AesBench::bench_openssl_aes512_decrypt_string()
+void AesBench::bench_openssl_aes256_decrypt_string()
 {
   AES_KEY key;
   QCOMPARE(AES_set_encrypt_key(aes_key_32, sizeof(aes_key_32) * 8, &key), 0);

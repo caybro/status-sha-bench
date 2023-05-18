@@ -37,8 +37,8 @@ add_executable(StatusAesBench WIN32 MACOSX_BUNDLE
     go-sqlcipher-libtomcrypt/aes.c go-sqlcipher-libtomcrypt/zeromem.c go-sqlcipher-libtomcrypt/crypt_argchk.c go-sqlcipher-libtomcrypt/burn_stack.c
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC "./go-sqlcipher-libtomcrypt")
 target_compile_definitions(${PROJECT_NAME} PUBLIC SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" LTC_NO_ASM)
+target_compile_definitions(StatusAesBench PUBLIC SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" LTC_NO_ASM)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL)
 target_link_libraries(StatusAesBench PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL)
