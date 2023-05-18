@@ -9,6 +9,7 @@ find_package(PkgConfig REQUIRED)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Test)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
 find_package(OpenSSL REQUIRED)
+pkg_check_modules(Botan IMPORTED_TARGET botan-2)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -41,7 +42,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC SOURCE_DIR="${CMAKE_CURRENT_SO
 target_compile_definitions(StatusAesBench PUBLIC SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" LTC_NO_ASM)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL)
-target_link_libraries(StatusAesBench PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL)
+target_link_libraries(StatusAesBench PRIVATE Qt${QT_VERSION_MAJOR}::Test OpenSSL::SSL PkgConfig::Botan)
 
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 add_test(NAME StatusAesBench COMMAND StatusAesBench)

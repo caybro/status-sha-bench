@@ -3,6 +3,7 @@
 #include "go-sqlcipher-libtomcrypt/tomcrypt.h"
 
 #include <openssl/aes.h>
+#include <botan/aes.h>
 
 namespace {
 char *bin2hex(const unsigned char *bin, size_t len) {
@@ -81,10 +82,15 @@ class AesBench : public QObject
 
   void bench_tomcrypt_aes128_decrypt_string();
   void bench_openssl_aes128_decrypt_string();
+  void bench_botan_aes128_decrypt_string();
+
   void bench_tomcrypt_aes192_decrypt_string();
   void bench_openssl_aes192_decrypt_string();
+  void bench_botan_aes192_decrypt_string();
+
   void bench_tomcrypt_aes256_decrypt_string();
   void bench_openssl_aes256_decrypt_string();
+  void bench_botan_aes256_decrypt_string();
 };
 
 AesBench::AesBench(QObject * parent)
@@ -193,6 +199,23 @@ void AesBench::bench_openssl_aes128_decrypt_string()
   QCOMPARE(XMEMCMP(decResult, aes_pt_16, AES_BLOCK_SIZE), 0);
 }
 
+void AesBench::bench_botan_aes128_decrypt_string()
+{
+    Botan::AES_128 cipher;
+    uint8_t encResult[cipher.block_size()];
+    Botan::SymmetricKey key{aes_key_16, sizeof(aes_key_16)};
+    cipher.set_key(key);
+    cipher.encrypt_n(aes_pt_16, encResult, 1);
+    QCOMPARE(XMEMCMP(encResult, aes_ct_16, cipher.block_size()), 0);
+    uint8_t decResult[cipher.block_size()];
+
+    QBENCHMARK {
+      cipher.decrypt_n(encResult, decResult, 1);
+    }
+
+    QCOMPARE(XMEMCMP(decResult, aes_pt_16, cipher.block_size()), 0);
+}
+
 void AesBench::bench_tomcrypt_aes192_decrypt_string()
 {
   unsigned char tmp[2][AES_BLOCK_SIZE]; // temp results
@@ -227,6 +250,23 @@ void AesBench::bench_openssl_aes192_decrypt_string()
   QCOMPARE(XMEMCMP(decResult, aes_pt_16, AES_BLOCK_SIZE), 0);
 }
 
+void AesBench::bench_botan_aes192_decrypt_string()
+{
+  Botan::AES_192 cipher;
+  uint8_t encResult[cipher.block_size()];
+  Botan::SymmetricKey key{aes_key_24, sizeof(aes_key_24)};
+  cipher.set_key(key);
+  cipher.encrypt_n(aes_pt_16, encResult, 1);
+  QCOMPARE(XMEMCMP(encResult, aes_ct_24, cipher.block_size()), 0);
+  uint8_t decResult[cipher.block_size()];
+
+  QBENCHMARK {
+    cipher.decrypt_n(encResult, decResult, 1);
+  }
+
+  QCOMPARE(XMEMCMP(decResult, aes_pt_16, cipher.block_size()), 0);
+}
+
 void AesBench::bench_tomcrypt_aes256_decrypt_string()
 {
   unsigned char tmp[2][AES_BLOCK_SIZE]; // temp results
@@ -259,6 +299,23 @@ void AesBench::bench_openssl_aes256_decrypt_string()
   }
 
   QCOMPARE(XMEMCMP(decResult, aes_pt_16, AES_BLOCK_SIZE), 0);
+}
+
+void AesBench::bench_botan_aes256_decrypt_string()
+{
+  Botan::AES_256 cipher;
+  uint8_t encResult[cipher.block_size()];
+  Botan::SymmetricKey key{aes_key_32, sizeof(aes_key_32)};
+  cipher.set_key(key);
+  cipher.encrypt_n(aes_pt_16, encResult, 1);
+  QCOMPARE(XMEMCMP(encResult, aes_ct_32, cipher.block_size()), 0);
+  uint8_t decResult[cipher.block_size()];
+
+  QBENCHMARK {
+    cipher.decrypt_n(encResult, decResult, 1);
+  }
+
+  QCOMPARE(XMEMCMP(decResult, aes_pt_16, cipher.block_size()), 0);
 }
 
 QTEST_APPLESS_MAIN(AesBench)
