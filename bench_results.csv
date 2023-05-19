@@ -13,3 +13,17 @@
 "bench_openssl_file_sha1","","WalltimeMilliseconds",39,77,2
 "bench_nayuki_file_sha1","","WalltimeMilliseconds",93,93,1
 "bench_intr_file_sha1","","WalltimeMilliseconds",43,86,2
+
+"bench_tomcrypt_aes128_decrypt_string","","WalltimeMilliseconds",4.100799560547e-05,86,2097152
+"bench_openssl_aes128_decrypt_string","","WalltimeMilliseconds",4.053115844727e-05,85,2097152
+"bench_botan_aes128_decrypt_string","","WalltimeMilliseconds",7.987022399902e-06,67,8388608
+"bench_mbedtls_aes128_decrypt_string","","WalltimeMilliseconds",1.144409179688e-05,96,8388608
+"bench_tomcrypt_aes192_decrypt_string","","WalltimeMilliseconds",4.863739013672e-05,102,2097152
+"bench_openssl_aes192_decrypt_string","","WalltimeMilliseconds",5.054473876953e-05,53,1048576
+"bench_botan_aes192_decrypt_string","","WalltimeMilliseconds",8.225440979004e-06,69,8388608
+"bench_mbedtls_aes192_decrypt_string","","WalltimeMilliseconds",1.239776611328e-05,52,4194304
+"bench_tomcrypt_aes256_decrypt_string","","WalltimeMilliseconds",5.626678466797e-05,59,1048576
+"bench_openssl_aes256_decrypt_string","","WalltimeMilliseconds",5.435943603516e-05,57,1048576
+"bench_botan_aes256_decrypt_string","","WalltimeMilliseconds",8.583068847656e-06,72,8388608
+"bench_tiny_aes256_decrypt_string","","WalltimeMilliseconds",0.0004425048828125,58,131072
+"bench_mbedtls_aes256_decrypt_string","","WalltimeMilliseconds",1.311302185059e-05,55,4194304
