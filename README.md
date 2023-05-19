@@ -23,6 +23,9 @@ For AES:
 
 ![image](https://github.com/caybro/status-sha-bench/assets/5377645/d1aaf9b3-2be7-401c-97aa-7d86041c85a8)
 
+![image](https://github.com/caybro/status-sha-bench/assets/5377645/7720f1b7-0120-480d-ac75-051ddcdbbd99)
+
+
 
 ### CSV bench results
 https://github.com/caybro/status-sha-bench/blob/b7cdcbf820cea75655cc110e2b41fa17cda4d38d/bench_results.csv?plain=1#L1-L15
