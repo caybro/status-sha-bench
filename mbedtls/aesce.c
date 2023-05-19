@@ -17,6 +17,7 @@
  *  limitations under the License.
  */
 
+
 #if defined(__aarch64__) && !defined(__ARM_FEATURE_CRYPTO) && defined(__clang__) && __clang_major__ >= 4
 /* TODO: Re-consider above after https://reviews.llvm.org/D131064 merged.
  *
@@ -38,11 +39,12 @@
 #define MBEDTLS_ENABLE_ARM_CRYPTO_EXTENSIONS_COMPILER_FLAG
 #endif
 
-#include <string.h>
 
+#include <string.h>
+#include "aesce.h"
 #if defined(MBEDTLS_AESCE_C)
 
-#include "aesce.h"
+
 
 #if defined(MBEDTLS_HAVE_ARM64)
 

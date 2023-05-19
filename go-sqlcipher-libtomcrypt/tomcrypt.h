@@ -9,7 +9,7 @@
 #include <limits.h>
 
 /* use configuration data */
-#include <tomcrypt_custom.h>
+#include "tomcrypt_custom.h"
 
 #ifdef __cplusplus
 extern "C" {
