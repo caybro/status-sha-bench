@@ -26,7 +26,7 @@
 #ifndef MBEDTLS_AESCE_H
 #define MBEDTLS_AESCE_H
 
-#include "mbedtls/aes.h"
+#include "aes.h"
 
 #if defined(MBEDTLS_HAVE_ARM64)
 
