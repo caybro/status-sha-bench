@@ -132,6 +132,10 @@ int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
     LTC_ARGCHK(ct != NULL);
     LTC_ARGCHK(skey != NULL);
 
+    ctx_encrypt.nr = skey->rijndael.Nr;
+    memset(ctx_encrypt.buf, 0, sizeof(ctx_encrypt.buf));
+    memcpy(ctx_encrypt.buf, skey->rijndael.eK, sizeof(skey->rijndael.eK));
+
     return mbedtls_aes_crypt_ecb(&ctx_encrypt, MBEDTLS_AES_ENCRYPT, pt, ct) == 0 ? CRYPT_OK : CRYPT_ERROR;
 }
 
@@ -160,6 +164,10 @@ int ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
     LTC_ARGCHK(pt != NULL);
     LTC_ARGCHK(ct != NULL);
     LTC_ARGCHK(skey != NULL);
+
+    ctx_decrypt.nr = skey->rijndael.Nr;
+    memset(ctx_decrypt.buf, 0, sizeof(ctx_decrypt.buf));
+    memcpy(ctx_decrypt.buf, skey->rijndael.dK, sizeof(skey->rijndael.dK));
 
     return mbedtls_aes_crypt_ecb(&ctx_decrypt, MBEDTLS_AES_DECRYPT, ct, pt) == 0 ? CRYPT_OK : CRYPT_ERROR;
 }
