@@ -91,25 +91,7 @@ static const uint16_t mbedtls_byte_order_detector = { 0x100 };
 extern "C" {
 #endif
 
-/**
- * Read the unsigned 32 bits integer from the given address, which need not
- * be aligned.
- *
- * \param   p pointer to 4 bytes of data
- * \return  Data at the given address
- */
-inline uint32_t mbedtls_get_unaligned_uint32(const void *p)
-{
-    uint32_t r;
-    memcpy(&r, p, sizeof(r));
-    return r;
-}
 
-#define MBEDTLS_GET_UINT32_LE(data, offset)                             \
-  ((MBEDTLS_IS_BIG_ENDIAN)                                              \
-     ? MBEDTLS_BSWAP32(mbedtls_get_unaligned_uint32((data) + (offset))) \
-     : mbedtls_get_unaligned_uint32((data) + (offset))                  \
-  )
 
 /**
  * Write the unsigned 32 bits integer to the given address, which need not
@@ -118,31 +100,6 @@ inline uint32_t mbedtls_get_unaligned_uint32(const void *p)
  * \param   p pointer to 4 bytes of data
  * \param   x data to write
  */
-inline void mbedtls_put_unaligned_uint32(void *p, uint32_t x)
-{
-    memcpy(p, &x, sizeof(x));
-}
-
-/**
- * Put in memory a 32 bits unsigned integer in little-endian order.
- *
- * \param   n       32 bits unsigned integer to put in memory.
- * \param   data    Base address of the memory where to put the 32
- *                  bits unsigned integer in.
- * \param   offset  Offset from \p data where to put the least significant
- *                  byte of the 32 bits unsigned integer \p n.
- */
-#define MBEDTLS_PUT_UINT32_LE(n, data, offset)                             \
-{                                                                          \
-  if (MBEDTLS_IS_BIG_ENDIAN)                                               \
-  {                                                                        \
-    mbedtls_put_unaligned_uint32((data) + (offset), MBEDTLS_BSWAP32((uint32_t) (n))); \
-  }                                                                        \
-  else                                                                     \
-  {                                                                        \
-    mbedtls_put_unaligned_uint32((data) + (offset), ((uint32_t) (n)));     \
-  }                                                                        \
-}
 
 /**
  * \brief The AES context-type definition.
