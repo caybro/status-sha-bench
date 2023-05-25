@@ -8,31 +8,6 @@
 #include "mbedtls/aes.h"
 
 namespace {
-char *bin2hex(const unsigned char *bin, size_t len) {
-  if (bin == nullptr || len == 0) return nullptr;
-
-  char *out = (char*)malloc(len*2+1);
-  if (!out) return nullptr;
-
-  for (size_t i=0; i<len; i++) {
-    out[i*2]   = "0123456789abcdef"[bin[i] >> 4];
-    out[i*2+1] = "0123456789abcdef"[bin[i] & 0x0F];
-  }
-  out[len*2] = '\0';
-
-  return out;
-}
-
-QString uint32Array5_to_hex(uint32_t state[5]) {
-  static constexpr auto fillChar = QLatin1Char('0');
-  return QStringLiteral("%1%2%3%4%5")
-      .arg(state[0], 8, 16, fillChar)
-      .arg(state[1], 8, 16, fillChar)
-      .arg(state[2], 8, 16, fillChar)
-      .arg(state[3], 8, 16, fillChar)
-      .arg(state[4], 8, 16, fillChar);
-}
-
 static const auto s_benchmarkString(QByteArrayLiteral("The quick brown fox jumps over the lazy dog"));
 //static const auto s_benchmarkString(QByteArray(""));
 
